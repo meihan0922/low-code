@@ -1,36 +1,20 @@
 import logo from "./logo.svg";
-import "./App.css";
-
+import Header from "./layout/Header";
+import Left from "./layout/Left";
+import Right from "./layout/Right";
+import Center from "./layout/Center";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.jsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <a
-          className="App-link"
-          href="https://tanstack.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn TanStack
-        </a>
-      </header>
+    <div className="h-[calc(100vh-var(--spacing)*16)]">
+      <Header />
+      <div className="flex h-full justify-between">
+        <Left />
+        <Center />
+        <Right />
+      </div>
     </div>
   );
 }
 
-
 export default App;
-
