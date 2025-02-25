@@ -1,4 +1,4 @@
 import { createContext } from "react";
-import { CanvasPublic } from "./store/canvas";
+import { CanvasPublicType } from "./store/canvas";
 
-export const CanvasContext = createContext<CanvasPublic>(null);
+export const CanvasContext = createContext<CanvasPublicType>(null);

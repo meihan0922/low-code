@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { getOnlyKey } from "../utils";
 
-const defaultCanvas = {
+const defaultCanvas: CmpsType = {
   // 畫布樣式
   style: {
     width: 320,
@@ -14,45 +14,67 @@ const defaultCanvas = {
     boxSizing: "content-box",
   },
   // 组件
-  //   cmps: [],
+  cmps: [],
 
-  // 仅用于测试
-  cmps: [
-    {
-      key: getOnlyKey(),
-      desc: "文本",
-      value: "文本",
-      style: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: 100,
-        height: 30,
-        fontSize: 12,
-        color: "red",
-      },
-    },
-  ],
+  // cmps: [
+  //   {
+  //     key: getOnlyKey(),
+  //     desc: "文本",
+  //     value: "文本",
+  //     style: {
+  //       position: "absolute",
+  //       top: 0,
+  //       left: 0,
+  //       width: 100,
+  //       height: 30,
+  //       fontSize: 12,
+  //       color: "red",
+  //     },
+  //   },
+  // ],
 };
 
-interface Cmps {
-  cmps: any[];
+export type CmpType = {
+  key: number;
+  value: string | number | null;
+  style?: Record<string, any>;
+};
+
+export type CmpsType = {
+  cmps: CmpType[];
   style: {};
-}
-interface CanvasDataType extends Cmps {}
-export type CanvasPublic = ReturnType<Canvas["getPublicCanvas"]>;
+};
+
+interface ICanvasDataType extends CmpsType {}
+export type CanvasPublicType = ReturnType<Canvas["getPublicCanvas"]>;
 
 export class Canvas {
-  canvas: CanvasDataType;
-  listeners: any;
+  canvas: ICanvasDataType;
+  listeners: (() => void)[];
+  selectedCmpIndex: number;
 
   constructor(_canvas = defaultCanvas) {
     this.canvas = _canvas; // 畫布數據
+    this.selectedCmpIndex = null;
     this.listeners = [];
   }
 
   getCanvas = () => {
     return { ...this.canvas };
+  };
+
+  getSelectedCmpIndex = () => {
+    return this.selectedCmpIndex;
+  };
+
+  getSelectedCmp = () => {
+    return this.getCanvasCmps()[this.selectedCmpIndex];
+  };
+
+  setSelectedCmpIndex = (index) => {
+    if (this.selectedCmpIndex === index) return;
+    this.selectedCmpIndex = index;
+    this.updateApp();
   };
 
   setCanvas = (_canvas) => {
@@ -63,7 +85,8 @@ export class Canvas {
   addCmp = (_cmp) => {
     const cmp = { key: getOnlyKey(), ..._cmp };
     this.canvas.cmps.push(cmp);
-    console.log("this.canvas", this.canvas);
+    // 預設新增的組件為『選中的組件』
+    this.selectedCmpIndex = this.canvas.cmps.length - 1;
     this.updateApp();
   };
 
@@ -73,6 +96,16 @@ export class Canvas {
     this.listeners.forEach((update) => {
       update();
     });
+  };
+
+  updateSelectedCmp = (newStyle = {}, newValue?) => {
+    const comp = this.getSelectedCmp();
+    Object.assign(comp, {
+      style: { ...comp.style, ...newStyle },
+      // TODO: 更改 value
+      // value:
+    });
+    this.updateApp();
   };
 
   subscribe = (listener) => {
@@ -91,6 +124,10 @@ export class Canvas {
       getCanvasCmps: this.getCanvasCmps,
       addCmp: this.addCmp,
       subscribe: this.subscribe,
+      getSelectedCmpIndex: this.getSelectedCmpIndex,
+      setSelectedCmpIndex: this.setSelectedCmpIndex,
+      updateSelectedCmp: this.updateSelectedCmp,
+      getSelectedCmp: this.getSelectedCmp,
     };
     return obj;
   };

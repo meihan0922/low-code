@@ -49,7 +49,7 @@ export default function DetailsList() {
             <li
               key={item.value}
               onClick={() => addCmp({ ...item })}
-              className="cursor-pointer flex-[0_0_calc(50%-var(--spacing)*1.25)] h-20 flex items-center justify-center overflow-hidden border border-gray-200 text-center text-xl hover:font-bold"
+              className="cursor-pointer flex-[0_0_calc(50%-var(--spacing)*1.25)] h-20 flex items-center justify-center overflow-hidden border border-gray-200 text-center text-xl hover:font-bold hover:text-orange-400 hover:border-orange-400"
             >
               {item.value}
             </li>

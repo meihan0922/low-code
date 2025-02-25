@@ -1,10 +1,10 @@
 import { useContext, useRef } from "react";
 import { CanvasContext } from "../Context";
 import { Canvas } from "./canvas";
-import type { CanvasPublic } from "./canvas";
+import type { CanvasPublicType } from "./canvas";
 
-export function useCanvas(canvas?: CanvasPublic) {
-  const ref = useRef<CanvasPublic>(null);
+export function useCanvas(canvas?: CanvasPublicType) {
+  const ref = useRef<CanvasPublicType>(null);
 
   if (!ref.current) {
     if (canvas) {
