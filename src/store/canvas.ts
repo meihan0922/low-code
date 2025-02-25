@@ -42,11 +42,13 @@ interface Cmps {
 interface CanvasDataType extends Cmps {}
 export type CanvasPublic = ReturnType<Canvas["getPublicCanvas"]>;
 
-class Canvas {
+export class Canvas {
   canvas: CanvasDataType;
+  listeners: any;
 
   constructor(_canvas = defaultCanvas) {
     this.canvas = _canvas; // 畫布數據
+    this.listeners = [];
   }
 
   getCanvas = () => {
@@ -55,6 +57,27 @@ class Canvas {
 
   setCanvas = (_canvas) => {
     Object.assign(this.canvas, _canvas);
+  };
+
+  // 更新畫布
+  addCmp = (_cmp) => {
+    const cmp = { key: getOnlyKey(), ..._cmp };
+    this.canvas.cmps.push(cmp);
+    console.log("this.canvas", this.canvas);
+    this.updateApp();
+  };
+
+  // 更新組件
+  // TODO: 待寫個別更新，先寫整個畫布更新
+  updateApp = () => {
+    this.listeners.forEach((update) => {
+      update();
+    });
+  };
+
+  subscribe = (listener) => {
+    this.listeners.push(listener);
+    return () => this.listeners.filter((lis) => lis !== listener);
   };
 
   // 拿到所有組件
@@ -66,23 +89,9 @@ class Canvas {
     const obj = {
       getCanvas: this.getCanvas,
       getCanvasCmps: this.getCanvasCmps,
+      addCmp: this.addCmp,
+      subscribe: this.subscribe,
     };
     return obj;
   };
 }
-
-function useCanvas(canvas?: CanvasPublic) {
-  const ref = useRef<CanvasPublic>(null);
-
-  if (!ref.current) {
-    if (canvas) {
-      ref.current = canvas;
-    } else {
-      ref.current = new Canvas().getPublicCanvas();
-    }
-  }
-
-  return ref.current;
-}
-
-export { useCanvas };
