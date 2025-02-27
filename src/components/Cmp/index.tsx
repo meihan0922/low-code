@@ -2,6 +2,8 @@ import classNames from "classnames";
 import { Component, ReactNode } from "react";
 import type { CmpType } from "../../store/canvas";
 import { CanvasContext } from "../../Context";
+import Img from "../Img";
+import Text from "../Text";
 
 const editStyle = "box-content absolute";
 const unselectedStyle = "border border-transparent";
@@ -86,17 +88,18 @@ export default class Cmp extends Component<{
   };
 
   render(): ReactNode {
-    const { style, value } = this.props.cmp;
+    const { cmp, isSelected } = this.props;
+    const { style, value, type } = cmp;
     const { width, height } = style;
     return (
       <div onDragStart={this.onDragStart} draggable onClick={this.setSelected}>
         {/* 組件本身 */}
-        <div style={style}>{value}</div>
+        <div style={style}>{getCmp(cmp)}</div>
         {/* 組件功能和選中的樣式 */}
         <ul
           className={classNames(
             editStyle,
-            this.props.isSelected ? selectedStyle : unselectedStyle
+            isSelected ? selectedStyle : unselectedStyle
           )}
           style={{
             top: style.top - 1,
@@ -149,5 +152,16 @@ export default class Cmp extends Component<{
         </ul>
       </div>
     );
+  }
+}
+
+function getCmp(cmp: CmpType) {
+  switch (cmp.type) {
+    case "Img":
+      return <Img {...cmp} />;
+    case "Text":
+      return <Text {...cmp} />;
+    default:
+      break;
   }
 }

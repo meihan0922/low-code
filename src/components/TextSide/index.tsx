@@ -32,10 +32,6 @@ const settings = [
     value: "正文",
     style: defaultStyle,
   },
-  {
-    value: "正文1",
-    style: defaultStyle,
-  },
 ];
 
 export default function DetailsList() {
@@ -48,7 +44,7 @@ export default function DetailsList() {
           return (
             <li
               key={item.value}
-              onClick={() => addCmp({ ...item })}
+              onClick={() => addCmp({ ...item, type: "Text" })}
               className="cursor-pointer flex-[0_0_calc(50%-var(--spacing)*1.25)] h-20 flex items-center justify-center overflow-hidden border border-gray-200 text-center text-xl hover:font-bold hover:text-orange-400 hover:border-orange-400"
             >
               {item.value}

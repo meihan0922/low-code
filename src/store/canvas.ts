@@ -34,11 +34,14 @@ const defaultCanvas: CmpsType = {
   // ],
 };
 
-export type CmpType = {
-  key: number;
-  value: string | number | null;
+type BaseCmpType = {
+  key?: number;
   style?: Record<string, any>;
 };
+
+export type CmpType =
+  | (BaseCmpType & { type: "Text"; value: string | number | null })
+  | (BaseCmpType & { type: "Img"; value: string });
 
 export type CmpsType = {
   cmps: CmpType[];
@@ -82,7 +85,7 @@ export class Canvas {
   };
 
   // 更新畫布
-  addCmp = (_cmp) => {
+  addCmp = (_cmp: CmpType) => {
     const cmp = { key: getOnlyKey(), ..._cmp };
     this.canvas.cmps.push(cmp);
     // 預設新增的組件為『選中的組件』
