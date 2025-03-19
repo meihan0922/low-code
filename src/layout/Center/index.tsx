@@ -1,15 +1,18 @@
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 import {
   useCanvasByContext,
   useCanvasCmps,
   useCanvasData,
-} from "../../store/hooks";
-import Cmp from "../../components/Cmp";
+} from "@/store/hooks";
+import Cmp from "@/components/Cmp";
+import useClickOutside from "@/hooks/useClickOutside";
 
 export default function Center(props) {
+  const ref = useRef<HTMLDivElement>(null);
   const canvas = useCanvasByContext();
   const canvasData = canvas.getCanvas();
   const { style, cmps } = canvasData;
+
   const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     /**
      * * 在瀏覽器中，會需要去關閉 onDragOver 的默認事件，才會觸發 onDrop，這是因為在某些瀏覽器中，拖放文件可能會導致打開某文件！
@@ -47,10 +50,23 @@ export default function Center(props) {
 
   const selectedIndex = canvas.getSelectedCmpIndex();
 
+  useEffect(() => {
+    const handler = () => canvas.setSelectedCmpIndex(-1);
+    ref.current.addEventListener("click", handler);
+    return () => ref.current.removeEventListener("click", handler);
+  }, []);
+
   return (
-    <div className="flex justify-center flex-1 min-h-full pt-16 text-center bg-gray-200">
+    <div
+      ref={ref}
+      className="flex justify-center flex-1 min-h-full pt-16 text-center bg-gray-200"
+    >
       <div
-        className="relative w-96 h-5/6 border-1 border-gray-200 bg-white shadow-2xl"
+        className="relative border-1 border-gray-200 shadow-2xl"
+        style={{
+          ...style,
+          backgroundImage: `url("${canvasData.style.backgroundImage}")`,
+        }}
         onDrop={onDrop}
         onDragOver={allowDrop}
       >

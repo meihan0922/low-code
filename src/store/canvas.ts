@@ -6,10 +6,10 @@ const defaultCanvas: CmpsType = {
   style: {
     width: 320,
     height: 568,
-    backgroundColor: "#ffffff00",
+    backgroundColor: "#ffffff",
     backgroundImage: "",
     backgroundPosition: "center",
-    backgroundSize: "cover",
+    backgroundSize: "contain",
     backgroundRepeat: "no-repeat",
     boxSizing: "content-box",
   },
@@ -45,7 +45,7 @@ export type CmpType =
 
 export type CmpsType = {
   cmps: CmpType[];
-  style: {};
+  style: Record<string, any>;
 };
 
 interface ICanvasDataType extends CmpsType {}
@@ -84,6 +84,14 @@ export class Canvas {
     Object.assign(this.canvas, _canvas);
   };
 
+  updateCanvasStyle = (newStyle) => {
+    this.canvas.style = {
+      ...this.canvas.style,
+      ...newStyle,
+    };
+    this.updateApp();
+  };
+
   // 更新畫布
   addCmp = (_cmp: CmpType) => {
     const cmp = { key: getOnlyKey(), ..._cmp };
@@ -101,13 +109,19 @@ export class Canvas {
     });
   };
 
-  updateSelectedCmp = (newStyle = {}, newValue?) => {
-    const comp = this.getSelectedCmp();
-    Object.assign(comp, {
-      style: { ...comp.style, ...newStyle },
-      // TODO: 更改 value
-      // value:
-    });
+  updateSelectedCmp = (newStyle?, newValue?) => {
+    const cmp = this.getSelectedCmp();
+    if (newStyle) {
+      this.canvas.cmps[this.getSelectedCmpIndex()].style = {
+        ...cmp.style,
+        ...newStyle,
+      };
+    }
+
+    if (newValue !== undefined) {
+      this.canvas.cmps[this.getSelectedCmpIndex()].value = newValue;
+    }
+
     this.updateApp();
   };
 
@@ -131,6 +145,7 @@ export class Canvas {
       setSelectedCmpIndex: this.setSelectedCmpIndex,
       updateSelectedCmp: this.updateSelectedCmp,
       getSelectedCmp: this.getSelectedCmp,
+      updateCanvasStyle: this.updateCanvasStyle,
     };
     return obj;
   };

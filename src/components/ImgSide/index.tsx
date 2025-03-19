@@ -1,4 +1,4 @@
-import { useCanvasByContext } from "../../store/hooks";
+import { useCanvasByContext } from "@/store/hooks";
 
 const defaultStyle = {
   position: "absolute",

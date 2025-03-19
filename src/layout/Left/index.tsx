@@ -1,8 +1,10 @@
 import { JSX, useState } from "react";
-import TextSide from "../../components/TextSide";
-import ImgSide from "../../components/ImgSide";
+import TextSide from "@/components/TextSide";
+import ImgSide from "@/components/ImgSide";
 import classNames from "classnames";
-import type { CmpType } from "../../store/canvas";
+import type { CmpType } from "@/store/canvas";
+import { useCallback, useContext, useEffect, useRef } from "react";
+import useClickOutside from "@/hooks/useClickOutside";
 
 type KeyType = CmpType["type"];
 
@@ -18,8 +20,15 @@ const liSelectedStyle = "box-border border-l-4 border-l-blue-400 text-blue-400";
 export default function Left(props) {
   const [showSide, setShowSide] = useState<keyof typeof CmpEnum>();
 
+  const ref = useRef<HTMLDivElement>(null);
+
+  const close = useCallback(() => {
+    setShowSide(undefined);
+  }, []);
+  useClickOutside(ref, close);
+
   return (
-    <div className="relative">
+    <div ref={ref} className="relative">
       <ul className="w-20">
         <li
           className={classNames(liStyle, {
@@ -38,7 +47,7 @@ export default function Left(props) {
           <span>圖片</span>
         </li>
       </ul>
-      {showSide && CmpEnum[showSide]()}
+      {showSide && <div className="z-20">{CmpEnum[showSide]()}</div>}
     </div>
   );
 }

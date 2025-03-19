@@ -1,15 +1,16 @@
 import classNames from "classnames";
 import { Component, ReactNode } from "react";
-import type { CmpType } from "../../store/canvas";
-import { CanvasContext } from "../../Context";
+import type { CmpType } from "@/store/canvas";
+import { CanvasContext } from "@/Context";
 import Img from "../Img";
 import Text from "../Text";
 
 const editStyle = "box-content absolute";
-const unselectedStyle = "border border-transparent";
+// const unselectedStyle = "border border-transparent";
+const unselectedStyle = "hidden";
 const selectedStyle = "border border-[#02dcf7]";
 const stretchDotStyle =
-  "z-[999] absolute w-2 h-2 bg-[#00b3ff] rounded-full border border-transparent box-content hover:border-[#00b3ff] hover:bg-white";
+  "z-10 absolute w-2 h-2 bg-[#00b3ff] rounded-full border border-transparent box-content hover:border-[#00b3ff] hover:bg-white";
 
 // TODO: 刪除，改變層級~
 // * 因為未來會太複雜，會需要很多 useCallback, useMemo，改用類組件
@@ -21,14 +22,15 @@ export default class Cmp extends Component<{
   static contextType = CanvasContext;
   context!: React.ContextType<typeof CanvasContext>;
 
-  setSelected = () => {
+  setSelected = (e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     this.context.setSelectedCmpIndex(this.props.index);
   };
 
   // ! 紀錄拖曳的起始位置
   // * 在上層畫布當中紀錄 drop 位置，相減計算後就可以得到移動距離，就可以得知在畫布上的座標了
   onDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    this.setSelected();
+    this.setSelected(e);
     const startX = e.pageX;
     const startY = e.pageY;
     /**
