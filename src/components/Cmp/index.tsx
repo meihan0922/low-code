@@ -4,6 +4,8 @@ import type { CmpType } from "@/store/canvas";
 import { CanvasContext } from "@/Context";
 import Img from "../Img";
 import Text from "../Text";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRotate } from "@fortawesome/free-solid-svg-icons";
 
 const editStyle = "box-content absolute";
 // const unselectedStyle = "border border-transparent";
@@ -70,10 +72,24 @@ export default class Cmp extends Component<{
         newStyle.top = style.top - disY;
       }
 
+      const newHeight = style.height + disY;
       Object.assign(newStyle, {
         width: style.width + disX,
-        height: style.height + disY,
+        height: newHeight,
       });
+
+      // 文本，可以等比例縮放
+      if (cmp.style.fontSize) {
+        const n = newHeight / style.height; // 計算縮放倍數
+        let newFontSize = n * cmp.style.fontSize;
+        // 給點限制
+        newFontSize =
+          newFontSize < 12 ? 12 : newHeight > 130 ? 130 : newFontSize;
+        Object.assign(newStyle, {
+          lineHeight: newHeight + "px",
+          fontSize: newFontSize,
+        });
+      }
 
       this.context.updateSelectedCmp(newStyle);
       startX = x;
