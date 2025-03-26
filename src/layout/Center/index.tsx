@@ -50,16 +50,47 @@ export default function Center(props) {
 
   const selectedIndex = canvas.getSelectedCmpIndex();
 
-  useEffect(() => {
-    const handler = () => canvas.setSelectedCmpIndex(-1);
-    ref.current.addEventListener("click", handler);
-    return () => ref.current.removeEventListener("click", handler);
-  }, []);
+  const handleClick = useCallback(() => canvas.setSelectedCmpIndex(-1), []);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      const selectedCmp = canvas.getSelectedCmp();
+      if (!selectedCmp) return;
+
+      const { top, left } = selectedCmp.style;
+      const newStyle: Record<string, number> = {};
+
+      switch (e.key) {
+        case "ArrowDown":
+          newStyle.top = top + 1;
+          break;
+        case "ArrowUp":
+          newStyle.top = top - 1;
+          break;
+        case "ArrowLeft":
+          newStyle.left = left - 1;
+          break;
+        case "ArrowRight":
+          newStyle.left = left + 1;
+          break;
+        default:
+          return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      canvas.updateSelectedCmp(newStyle);
+    },
+    [canvas]
+  );
 
   return (
     <div
       ref={ref}
-      className="flex justify-center flex-1 min-h-full pt-16 text-center bg-gray-200"
+      id="center"
+      className="flex justify-center flex-1 min-h-full pt-16 text-center bg-gray-200 focus:outline-0"
+      tabIndex={0} // ! 只有部分元素（如 button, input, a）可以獲得焦點 (focus)，而想讓 div 接收 onKeyDown 事件，就必須先讓它能被聚焦，這就是 tabIndex={0} 的作用。
+      onKeyDown={handleKeyDown}
+      onClick={handleClick}
     >
       <div
         className="relative border-1 border-gray-200 shadow-2xl"
