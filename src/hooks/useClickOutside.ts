@@ -3,8 +3,6 @@ import { useEffect } from "react";
 /**
  * mousedown / touchstart 事件按下時立即觸發，不會管 mouseup 的點
  * click 會在 滑鼠按下（mousedown）+ 放開（mouseup）後
- *
- * 如果在 ref 內部觸發
  */
 
 const useClickOutside = (ref, handler) => {

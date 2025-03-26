@@ -136,6 +136,21 @@ export default function EditCmp(props) {
           </div>
         </Item>
       )}
+      {style.transform !== undefined && (
+        <Item label="旋轉: ">
+          <input
+            className={inputStyle}
+            type="number"
+            value={style.transform}
+            onChange={(e) =>
+              handleStyleChange(e, {
+                name: "transform",
+                value: e.target.value,
+              })
+            }
+          />
+        </Item>
+      )}
       {style.borderRadius !== undefined && (
         <Item label="圓角: ">
           <input

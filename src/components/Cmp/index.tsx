@@ -89,14 +89,54 @@ export default class Cmp extends Component<{
     document.addEventListener("mouseup", up);
   };
 
+  rotate = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const { style } = this.props.cmp;
+    const { width, height, transform } = style;
+    const trans = parseFloat(transform); // 拿到小數
+    const r = height / 2; // 中間位置
+    const ang = ((trans + 90) * Math.PI) / 180; // 角度
+    const [offsetX, offsetY] = [-Math.cos(ang) * r, -Math.sin(ang) * r]; // 偏移量
+
+    // 起始位置
+    let startX = e.pageX + offsetX;
+    let startY = e.pageY + offsetY;
+
+    const move = (e) => {
+      let x = e.pageX;
+      let y = e.pageY;
+      let disX = x - startX;
+      let disY = y - startY;
+      let deg: number | string =
+        (360 * Math.atan2(disY, disX)) / (2 * Math.PI) - 90;
+      deg = deg.toFixed(2);
+
+      this.context.updateSelectedCmp({
+        transform: deg,
+      });
+    };
+
+    const up = () => {
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", up);
+    };
+
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", up);
+  };
+
   render(): ReactNode {
     const { cmp, isSelected } = this.props;
     const { style, value, type } = cmp;
     const { width, height } = style;
+    const transform = `rotate(${style.transform}deg)`;
+
     return (
       <div onDragStart={this.onDragStart} draggable onClick={this.setSelected}>
         {/* 組件本身 */}
-        <div style={style}>{getCmp(cmp)}</div>
+        <div style={{ ...style, transform }}>{getCmp(cmp)}</div>
         {/* 組件功能和選中的樣式 */}
         <ul
           className={classNames(
@@ -108,6 +148,7 @@ export default class Cmp extends Component<{
             left: style.left - 1,
             width: style.width,
             height: style.height,
+            transform,
           }}
           onMouseDown={this.onMouseDown}
         >
@@ -151,6 +192,13 @@ export default class Cmp extends Component<{
             style={{ top: height / 2 - 4, left: -4 }}
             data-direction="left"
           />
+          <li
+            className="z-20 absolute text-[rgba(0, 87, 255, 0.5)] font-bold text-sm text-[#00b3ff]"
+            style={{ top: height / 2 + 30, left: width / 2 - 6 }}
+            onMouseDown={this.rotate}
+          >
+            <FontAwesomeIcon icon={faRotate} />
+          </li>
         </ul>
       </div>
     );

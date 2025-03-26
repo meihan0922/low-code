@@ -1,10 +1,8 @@
 import { useCanvasByContext } from "@/store/hooks";
+import { defaultCommonStyle } from "@/utils/const";
 
 const defaultStyle = {
-  position: "absolute",
-  top: 1,
-  left: 0,
-  width: 80,
+  ...defaultCommonStyle,
   height: 30,
   lineHeight: "30px",
   fontSize: 12,
@@ -12,10 +10,6 @@ const defaultStyle = {
   color: "#000",
   backgroundColor: "#ffffff00",
   textAlign: "left",
-  borderRadius: "0%",
-  borderStyle: "none",
-  borderWidth: "0",
-  borderColor: "#ffffff00",
 };
 
 const settings = [
