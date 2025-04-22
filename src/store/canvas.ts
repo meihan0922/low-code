@@ -82,6 +82,7 @@ export class Canvas {
 
   setCanvas = (_canvas) => {
     Object.assign(this.canvas, _canvas);
+    this.updateApp();
   };
 
   updateCanvasStyle = (newStyle) => {
@@ -146,6 +147,7 @@ export class Canvas {
       updateSelectedCmp: this.updateSelectedCmp,
       getSelectedCmp: this.getSelectedCmp,
       updateCanvasStyle: this.updateCanvasStyle,
+      setCanvas: this.setCanvas,
     };
     return obj;
   };
