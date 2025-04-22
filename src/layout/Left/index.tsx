@@ -5,12 +5,14 @@ import classNames from "classnames";
 import type { CmpType } from "@/store/canvas";
 import { useCallback, useContext, useEffect, useRef } from "react";
 import useClickOutside from "@/hooks/useClickOutside";
+import TplSide from "@/components/LeftSide/TplSide";
 
 type KeyType = CmpType["type"];
 
 const CmpEnum: Record<KeyType, JSX.Element> = {
   Text: <TextSide />,
   Img: <ImgSide />,
+  Tpl: <TplSide />,
 } as const;
 
 const liStyle =
@@ -31,6 +33,14 @@ export default function Left(props) {
   return (
     <div ref={ref} className="relative">
       <ul className="w-20">
+        <li
+          className={classNames(liStyle, {
+            [liSelectedStyle]: showSide === "Tpl",
+          })}
+          onClick={() => setShowSide("Tpl")}
+        >
+          <span>模板</span>
+        </li>
         <li
           className={classNames(liStyle, {
             [liSelectedStyle]: showSide === "Text",

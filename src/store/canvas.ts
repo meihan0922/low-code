@@ -12,6 +12,7 @@ const defaultCanvas: CmpsType = {
     backgroundSize: "contain",
     backgroundRepeat: "no-repeat",
     boxSizing: "content-box",
+    transition: "transform 0.3s ease",
   },
   // 组件
   cmps: [],
@@ -41,7 +42,8 @@ type BaseCmpType = {
 
 export type CmpType =
   | (BaseCmpType & { type: "Text"; value: string | number | null })
-  | (BaseCmpType & { type: "Img"; value: string });
+  | (BaseCmpType & { type: "Img"; value: string })
+  | (BaseCmpType & { type: "Tpl"; value: string });
 
 export type CmpsType = {
   cmps: CmpType[];

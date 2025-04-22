@@ -1,4 +1,11 @@
-import { useCallback, useContext, useEffect, useRef } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   useCanvasByContext,
   useCanvasCmps,
@@ -6,8 +13,12 @@ import {
 } from "@/store/hooks";
 import Cmp from "@/components/Cmp";
 import useClickOutside from "@/hooks/useClickOutside";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMinus, faPercent, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function Center(props) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLDivElement>(null);
   const canvas = useCanvasByContext();
   const canvasData = canvas.getCanvas();
@@ -76,33 +87,90 @@ export default function Center(props) {
     [canvas]
   );
 
+  // 縮放
+  const [zoom, setZoom] = useState(() =>
+    parseInt(canvasData.style.width) >= 800 ? 50 : 100
+  );
+
+  // 重新計算 wrapper 尺寸與內容平移
+  useLayoutEffect(() => {
+    if (contentRef.current && wrapperRef.current) {
+      const scale = zoom / 100;
+
+      const content = contentRef.current;
+      const rect = content.getBoundingClientRect();
+
+      const p = Math.abs(scale - 1) * rect.height * 0.25;
+      // 設定 wrapper 高度為內容高度 * scale
+      wrapperRef.current.style.height = `${
+        (scale > 1 ? rect.height * scale : rect.height) + (p > 200 ? p : 200)
+      }px`;
+      const percent = (scale - 1) * 50;
+      // 平移讓內容不會被 scale 壓到左上角
+      content.style.transform = `scale(${scale}) translate(${-percent}%, ${
+        scale > 1 && p > 100 ? p + "px" : "100px"
+      })`;
+      content.style.transformOrigin = "top left";
+    }
+  }, [zoom, canvasData.style.width]);
+
   return (
     <div
       ref={ref}
       id="center"
-      className="flex justify-center flex-1 min-h-full pt-16 text-center bg-gray-200 focus:outline-0"
+      className="h-full overflow-scroll flex justify-center flex-1 text-center bg-gray-200 focus:outline-0"
       tabIndex={0} // ! 只有部分元素（如 button, input, a）可以獲得焦點 (focus)，而想讓 div 接收 onKeyDown 事件，就必須先讓它能被聚焦，這就是 tabIndex={0} 的作用。
       onKeyDown={handleKeyDown}
       onClick={handleClick}
     >
-      <div
-        className="relative border-1 border-gray-200 shadow-2xl"
-        style={{
-          ...style,
-          backgroundImage: `url("${canvasData.style.backgroundImage}")`,
-        }}
-        onDrop={onDrop}
-        onDragOver={allowDrop}
-      >
-        {cmps.map((cmp, index) => (
-          <Cmp
-            key={cmp.key}
-            cmp={cmp}
-            index={index}
-            isSelected={selectedIndex === index}
-          />
-        ))}
+      <div ref={wrapperRef} style={{ minHeight: "100%" }}>
+        <div
+          className="border-1 border-gray-200 shadow-2xl"
+          ref={contentRef}
+          style={{
+            ...style,
+            backgroundImage: `url("${canvasData.style.backgroundImage}")`,
+          }}
+          onDrop={onDrop}
+          onDragOver={allowDrop}
+        >
+          {cmps.map((cmp, index) => (
+            <Cmp
+              key={cmp.key}
+              cmp={cmp}
+              index={index}
+              isSelected={selectedIndex === index}
+            />
+          ))}
+        </div>
       </div>
+      <ul className="fixed h-10 flex bottom-10 right-96 bg-white border rounded-lg border-gray-400 justify-around">
+        <li
+          className="pl-2 pr-1.5 text-xs flex items-center cursor-pointer"
+          onClick={() => setZoom((p) => p - 10)}
+        >
+          <FontAwesomeIcon icon={faMinus} />
+        </li>
+        <li className="border-r border-l flex-1 flex items-center border-gray-400">
+          <input
+            className="w-10 text-right"
+            type="num"
+            value={zoom}
+            onChange={(e) => {
+              let newValue = Number(e.target.value);
+              newValue = newValue >= 1 ? newValue : 1;
+              setZoom(newValue - 0);
+            }}
+          />
+          <FontAwesomeIcon icon={faPercent} className="px-2 text-xs" />
+        </li>
+        <li
+          className="pr-2 pl-1.5 text-xs flex items-center cursor-pointer"
+          onClick={() => setZoom((p) => p + 10)}
+        >
+          <FontAwesomeIcon icon={faPlus} />
+        </li>
+      </ul>
     </div>
   );
 }
