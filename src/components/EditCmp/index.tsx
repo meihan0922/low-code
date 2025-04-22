@@ -17,7 +17,6 @@ export default function EditCmp(props) {
     canvas.updateSelectedCmp(null, value);
   };
 
-  console.log("style", style);
   return (
     <div className="w-80 inline-block text-center">
       <div className="h-14 text-base leading-14 border-b border-[#ddd] text-center bg-[##ffe331] text-[#500202] mb-4">

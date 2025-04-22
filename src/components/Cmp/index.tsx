@@ -3,7 +3,7 @@ import { Component, ReactNode } from "react";
 import type { CmpType } from "@/store/canvas";
 import { CanvasContext } from "@/Context";
 import Img from "../Img";
-import Text from "../Text";
+import Text from "@/components/LeftSide/Text";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate } from "@fortawesome/free-solid-svg-icons";
 
@@ -87,7 +87,7 @@ export default class Cmp extends Component<{
           newFontSize < 12 ? 12 : newHeight > 130 ? 130 : newFontSize;
         Object.assign(newStyle, {
           lineHeight: newHeight + "px",
-          fontSize: newFontSize,
+          fontSize: Math.floor(newFontSize),
         });
       }
 
@@ -127,7 +127,7 @@ export default class Cmp extends Component<{
       let disY = y - startY;
       let deg: number | string =
         (360 * Math.atan2(disY, disX)) / (2 * Math.PI) - 90;
-      deg = deg.toFixed(2);
+      deg = Math.floor(deg);
 
       this.context.updateSelectedCmp({
         transform: deg,

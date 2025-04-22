@@ -32,14 +32,7 @@ export default function Center(props) {
     const oldStyle = selectedCmp.style;
     const left = disX + oldStyle.left;
     const top = disY + oldStyle.top;
-    console.log(
-      "%cdis",
-      "color: white; background-color: #007acc;",
-      top,
-      left,
-      oldStyle.left,
-      oldStyle.top
-    );
+
     canvas.updateSelectedCmp({ top, left });
   }, []);
 
