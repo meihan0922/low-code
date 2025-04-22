@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import useClickOutside from "@/hooks/useClickOutside";
-import { HexColorPicker } from "react-colorful";
+import { HexAlphaColorPicker } from "react-colorful";
 
 const ColorPicker = ({ color, onChange }) => {
   const popover = useRef(undefined);
@@ -25,7 +25,7 @@ const ColorPicker = ({ color, onChange }) => {
           className="absolute top-[calc(100%+var(--spacing)*0.5)] left-0 rounded-lg bg-white p-2 border-1 border-[#d6dbe1] z-10"
           ref={popover}
         >
-          <HexColorPicker color={color} onChange={onChange} />
+          <HexAlphaColorPicker color={color} onChange={onChange} />
         </div>
       )}
     </div>

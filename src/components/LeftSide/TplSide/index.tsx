@@ -1,10 +1,6 @@
 import { useCanvasByContext } from "@/store/hooks";
 import { defaultCommonStyle } from "@/utils/const";
 
-const defaultStyle = {
-  ...defaultCommonStyle,
-};
-
 const settings = [
   {
     key: 0,

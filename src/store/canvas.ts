@@ -43,7 +43,8 @@ type BaseCmpType = {
 export type CmpType =
   | (BaseCmpType & { type: "Text"; value: string | number | null })
   | (BaseCmpType & { type: "Img"; value: string })
-  | (BaseCmpType & { type: "Tpl"; value: string });
+  | (BaseCmpType & { type: "Tpl"; value: string })
+  | (BaseCmpType & { type: "GraphSide"; value: string });
 
 export type CmpsType = {
   cmps: CmpType[];

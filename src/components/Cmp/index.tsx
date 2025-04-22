@@ -148,7 +148,7 @@ export default class Cmp extends Component<{
     const { style, value, type } = cmp;
     const { width, height } = style;
     const transform = `rotate(${style.transform}deg)`;
-
+    console.log("????", style);
     return (
       <div onDragStart={this.onDragStart} draggable onClick={this.setSelected}>
         {/* 組件本身 */}

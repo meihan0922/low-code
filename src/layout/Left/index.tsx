@@ -6,13 +6,15 @@ import type { CmpType } from "@/store/canvas";
 import { useCallback, useContext, useEffect, useRef } from "react";
 import useClickOutside from "@/hooks/useClickOutside";
 import TplSide from "@/components/LeftSide/TplSide";
+import GraphSide from "@/components/LeftSide/GraphSide";
 
 type KeyType = CmpType["type"];
 
-const CmpEnum: Record<KeyType, JSX.Element> = {
-  Text: <TextSide />,
-  Img: <ImgSide />,
-  Tpl: <TplSide />,
+const CmpEnum: Record<KeyType, { text: string; cmp: JSX.Element }> = {
+  Text: { text: "文字", cmp: <TextSide /> },
+  Img: { text: "圖片", cmp: <ImgSide /> },
+  Tpl: { text: "模板", cmp: <TplSide /> },
+  GraphSide: { text: "圖形", cmp: <GraphSide /> },
 } as const;
 
 const liStyle =
@@ -33,32 +35,20 @@ export default function Left(props) {
   return (
     <div ref={ref} className="relative">
       <ul className="w-20">
-        <li
-          className={classNames(liStyle, {
-            [liSelectedStyle]: showSide === "Tpl",
-          })}
-          onClick={() => setShowSide("Tpl")}
-        >
-          <span>模板</span>
-        </li>
-        <li
-          className={classNames(liStyle, {
-            [liSelectedStyle]: showSide === "Text",
-          })}
-          onClick={() => setShowSide("Text")}
-        >
-          <span>文本</span>
-        </li>
-        <li
-          className={classNames(liStyle, {
-            [liSelectedStyle]: showSide === "Img",
-          })}
-          onClick={() => setShowSide("Img")}
-        >
-          <span>圖片</span>
-        </li>
+        {Object.entries(CmpEnum).map(([key, { text }]) => {
+          return (
+            <li
+              className={classNames(liStyle, {
+                [liSelectedStyle]: showSide === key,
+              })}
+              onClick={() => setShowSide(key as keyof typeof CmpEnum)}
+            >
+              <span>{text}</span>
+            </li>
+          );
+        })}
       </ul>
-      {showSide && <div className="z-20">{CmpEnum[showSide]}</div>}
+      {showSide && <div className="z-20">{CmpEnum[showSide].cmp}</div>}
     </div>
   );
 }
