@@ -105,6 +105,12 @@ export class Canvas {
     this.updateApp();
   };
 
+  deleteSelectedCmp = () => {
+    this.canvas.cmps.splice(this.selectedCmpIndex, 1);
+    this.selectedCmpIndex = undefined;
+    this.updateApp();
+  };
+
   // 更新組件
   // TODO: 待寫個別更新，先寫整個畫布更新
   updateApp = () => {
@@ -115,9 +121,9 @@ export class Canvas {
 
   updateSelectedCmp = (newStyle?, newValue?) => {
     const cmp = this.getSelectedCmp();
-    if (newStyle) {
+    if (newStyle && this.canvas.cmps[this.getSelectedCmpIndex()]?.style) {
       this.canvas.cmps[this.getSelectedCmpIndex()].style = {
-        ...cmp.style,
+        ...(cmp?.style || {}),
         ...newStyle,
       };
     }
@@ -151,6 +157,7 @@ export class Canvas {
       getSelectedCmp: this.getSelectedCmp,
       updateCanvasStyle: this.updateCanvasStyle,
       setCanvas: this.setCanvas,
+      deleteSelectedCmp: this.deleteSelectedCmp,
     };
     return obj;
   };

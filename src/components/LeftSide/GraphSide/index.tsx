@@ -32,6 +32,16 @@ export default function GraphSide() {
     canvas.addCmp(_cmp);
   };
 
+  // ! 紀錄拖曳的起始位置
+  const onDragStart = (e: React.DragEvent<HTMLLIElement>, _cmp: CmpType) => {
+    // * 在上層畫布當中紀錄 drop 位置，相減計算後就可以得到移動距離，就可以得知在畫布上的座標了
+    /**
+     * * DataTransfer物件用於拖曳並放置（拖放）進程資料。
+     * * https://developer.mozilla.org/zh-CN/docs/Web/API/DataTransfer
+     */
+    e.dataTransfer.setData("drag-cmp", JSON.stringify(_cmp));
+  };
+
   return (
     <div className="z-[999] absolute top-0 left-20 w-72 h-full px-5 py-3.5 overflow-scroll shadow-lg bg-white">
       <ul className="flex flex-wrap gap-2.5">
@@ -46,7 +56,9 @@ export default function GraphSide() {
               borderStyle: item.style.borderStyle,
               borderColor: item.style.borderColor,
             }}
+            draggable="true"
             onClick={() => addCmp({ ...item, type: "GraphSide" })}
+            onDragStart={(e) => onDragStart(e, { ...item, type: "GraphSide" })}
           ></li>
         ))}
       </ul>

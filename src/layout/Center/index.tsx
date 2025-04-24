@@ -1,58 +1,68 @@
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import {
-  useCanvasByContext,
-  useCanvasCmps,
-  useCanvasData,
-} from "@/store/hooks";
+import { useCallback, useRef, useState } from "react";
+import { useCanvasByContext } from "@/store/hooks";
 import Cmp from "@/components/Cmp";
-import useClickOutside from "@/hooks/useClickOutside";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPercent, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { CmpType } from "@/store/canvas";
 
 export default function Center(props) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLDivElement>(null);
   const canvas = useCanvasByContext();
   const canvasData = canvas.getCanvas();
+  const selectedIndex = canvas.getSelectedCmpIndex();
   const { style, cmps } = canvasData;
 
-  const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    /**
-     * * 在瀏覽器中，會需要去關閉 onDragOver 的默認事件，才會觸發 onDrop，這是因為在某些瀏覽器中，拖放文件可能會導致打開某文件！
-     */
-    const endX = e.pageX;
-    const endY = e.pageY;
-    /**
-     * * DataTransfer物件用於拖曳並放置（拖放）進程資料。
-     * * https://developer.mozilla.org/zh-CN/docs/Web/API/DataTransfer
-     * 從 Cmp 的 onDragStart 取得起始座標 startX, startY
-     */
-    const [startX, startY] = e.dataTransfer.getData("text").split(",");
-    const disX = endX - Number(startX);
-    const disY = endY - Number(startY);
-
-    const selectedCmp = canvas.getSelectedCmp();
-    const oldStyle = selectedCmp.style;
-    const left = disX + oldStyle.left;
-    const top = disY + oldStyle.top;
-
-    canvas.updateSelectedCmp({ top, left });
-  }, []);
-
-  const allowDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => e.preventDefault(),
-    []
+  // 縮放
+  const [zoom, setZoom] = useState(() =>
+    parseInt(canvasData.style.width) >= 800 ? 50 : 100
   );
 
-  const selectedIndex = canvas.getSelectedCmpIndex();
+  // 處理 LeftSide 拖曳過來的物件
+  const onDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      /**
+       * * 在瀏覽器中，會需要去關閉 onDragOver 的默認事件，才會觸發 onDrop，這是因為在某些瀏覽器中，拖放文件可能會導致打開某文件！
+       */
+      const endX = e.pageX;
+      const endY = e.pageY;
+      /**
+       * * DataTransfer物件用於拖曳並放置（拖放）進程資料。
+       * * https://developer.mozilla.org/zh-CN/docs/Web/API/DataTransfer
+       * 從 Cmp 的 onDragStart 取得起始座標 startX, startY
+       */
+      let rawData: CmpType | string = e.dataTransfer.getData("drag-cmp");
+      if (!rawData) return;
+
+      const dragCmp = JSON.parse(rawData);
+
+      const canvasDOMPos = {
+        top: 110,
+        // 因為 center 畫布有被 transform-origin 置中，所以為畫面寬度 - 畫布寬 * 放大比例 = 畫布左上角的位置
+        left: document.body.clientWidth / 2 - (style.width / 2) * (zoom / 100),
+      };
+
+      const startX = canvasDOMPos.left;
+      const startY = canvasDOMPos.top;
+
+      let disX = endX - startX;
+      let disY = endY - startY;
+
+      // 對應到未被縮放的距離
+      // 假設 zoom 是 50，disX = 10，對應到未被縮放的情況會是 20
+      disX = disX * (100 / zoom); // disX * (1 / (zoom / 100))
+      disY = disY * (100 / zoom);
+
+      dragCmp.style.left = disX - dragCmp.style.width / 2;
+      dragCmp.style.top = disY - dragCmp.style.height / 2;
+
+      canvas.addCmp(dragCmp);
+    },
+    [zoom, style.width]
+  );
+
+  const allowDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  }, []);
 
   const handleClick = useCallback(() => canvas.setSelectedCmpIndex(-1), []);
 
@@ -77,6 +87,9 @@ export default function Center(props) {
         case "ArrowRight":
           newStyle.left = left + 1;
           break;
+        case "Backspace":
+          canvas.deleteSelectedCmp();
+          return;
         default:
           return;
       }
@@ -87,67 +100,50 @@ export default function Center(props) {
     [canvas]
   );
 
-  // 縮放
-  const [zoom, setZoom] = useState(() =>
-    parseInt(canvasData.style.width) >= 800 ? 50 : 100
-  );
-
-  // 重新計算 wrapper 尺寸與內容平移
-  useLayoutEffect(() => {
-    if (contentRef.current && wrapperRef.current) {
-      const scale = zoom / 100;
-
-      const content = contentRef.current;
-      const rect = content.getBoundingClientRect();
-
-      const p = Math.abs(scale - 1) * rect.height * 0.25;
-      // 設定 wrapper 高度為內容高度 * scale
-      wrapperRef.current.style.height = `${
-        (scale > 1 ? rect.height * scale : rect.height) + (p > 200 ? p : 200)
-      }px`;
-      const percent = (scale - 1) * 50;
-      // 平移讓內容不會被 scale 壓到左上角
-      content.style.transform = `scale(${scale}) translate(${-percent}%, ${
-        scale > 1 && p > 100 ? p + "px" : "100px"
-      })`;
-      content.style.transformOrigin = "top left";
-    }
-  }, [zoom, canvasData.style.width]);
+  const canvasHeightZoom = style.height * (zoom / 100);
 
   return (
     <div
       ref={ref}
       id="center"
-      className="h-full overflow-scroll flex justify-center flex-1 text-center bg-gray-200 focus:outline-0"
+      className="py-16 min-h-inherit box-border flex justify-center flex-1 text-center bg-gray-200 focus:outline-0"
       tabIndex={0} // ! 只有部分元素（如 button, input, a）可以獲得焦點 (focus)，而想讓 div 接收 onKeyDown 事件，就必須先讓它能被聚焦，這就是 tabIndex={0} 的作用。
       onKeyDown={handleKeyDown}
       onClick={handleClick}
+      // * 由左面板拖曳元件進入時，可以自動取得焦點，才可以偵測 keydown，進行刪除元件的操作
+      onDrop={() => ref.current?.focus({ preventScroll: false })}
+      style={{
+        height:
+          canvasHeightZoom > window.innerHeight - 64 - 128 // - header - paddingY
+            ? canvasHeightZoom + 128 + "px"
+            : "calc(100vh - 64px)",
+      }}
     >
-      <div ref={wrapperRef} style={{ minHeight: "100%" }}>
-        <div
-          className="border-1 border-gray-200 shadow-2xl"
-          ref={contentRef}
-          style={{
-            ...style,
-            backgroundImage: `url("${canvasData.style.backgroundImage}")`,
-          }}
-          onDrop={onDrop}
-          onDragOver={allowDrop}
-        >
-          {cmps.map((cmp, index) => (
-            <Cmp
-              key={cmp.key}
-              cmp={cmp}
-              index={index}
-              isSelected={selectedIndex === index}
-            />
-          ))}
-        </div>
+      <div
+        className="relative border-1 border-gray-200 origin-[50%_0%] shadow-2xl"
+        style={{
+          ...style,
+          backgroundImage: `url("${canvasData.style.backgroundImage}")`,
+          transform: `scale(${zoom / 100})`,
+        }}
+        onDrop={onDrop}
+        // * 瀏覽器預設會 禁止 drop
+        onDragOver={allowDrop}
+      >
+        {cmps.map((cmp, index) => (
+          <Cmp
+            key={cmp.key}
+            cmp={cmp}
+            index={index}
+            isSelected={selectedIndex === index}
+            zoom={zoom}
+          />
+        ))}
       </div>
       <ul className="fixed h-10 flex bottom-10 right-96 bg-white border rounded-lg border-gray-400 justify-around">
         <li
           className="pl-2 pr-1.5 text-xs flex items-center cursor-pointer"
-          onClick={() => setZoom((p) => p - 10)}
+          onClick={() => setZoom((p) => (p - 25 >= 1 ? p - 25 : 1))}
         >
           <FontAwesomeIcon icon={faMinus} />
         </li>
@@ -166,7 +162,7 @@ export default function Center(props) {
         </li>
         <li
           className="pr-2 pl-1.5 text-xs flex items-center cursor-pointer"
-          onClick={() => setZoom((p) => p + 10)}
+          onClick={() => setZoom((p) => p + 25)}
         >
           <FontAwesomeIcon icon={faPlus} />
         </li>

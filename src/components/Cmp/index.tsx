@@ -20,29 +20,72 @@ export default class Cmp extends Component<{
   cmp: CmpType;
   index: number;
   isSelected: boolean;
+  zoom: number;
 }> {
   static contextType = CanvasContext;
   context!: React.ContextType<typeof CanvasContext>;
+  isDragging = false;
 
   setSelected = (e: React.DragEvent<HTMLDivElement>) => {
     e.stopPropagation();
     this.context.setSelectedCmpIndex(this.props.index);
   };
 
-  // ! 紀錄拖曳的起始位置
-  // * 在上層畫布當中紀錄 drop 位置，相減計算後就可以得到移動距離，就可以得知在畫布上的座標了
-  onDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    this.setSelected(e);
-    const startX = e.pageX;
-    const startY = e.pageY;
-    /**
-     * * DataTransfer物件用於拖曳並放置（拖放）進程資料。
-     * * https://developer.mozilla.org/zh-CN/docs/Web/API/DataTransfer
-     */
-    e.dataTransfer.setData("text", `${startX},${startY}`);
+  onMouseDownForMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.preventDefault();
+    this.isDragging = false;
+
+    // 拖動前位置
+    let startX = e.pageX;
+    let startY = e.pageY;
+
+    // 放大縮小也會影響到移動的距離
+    const { cmp, zoom } = this.props;
+
+    const move = (e: MouseEvent) => {
+      const x = e.pageX;
+      const y = e.pageY;
+
+      let disX = x - startX;
+      let disY = y - startY;
+
+      // 避免影響到 click 事件
+      if (!this.isDragging && (Math.abs(disX) > 5 || Math.abs(disY) > 5)) {
+        this.isDragging = true;
+      }
+
+      if (this.isDragging) {
+        // 對應到未被縮放的距離
+        // 假設 zoom 是 50，disX = 10，對應到未被縮放的情況會是 20
+        disX = disX * (100 / zoom); // disX * (1 / (zoom / 100))
+        disY = disY * (100 / zoom);
+
+        const top = cmp.style.top + disY;
+        const left = cmp.style.left + disX;
+
+        this.context.updateSelectedCmp({ top, left });
+        // 紀錄縮放時，新的位置，之後就不用重複計算
+        startX = x;
+        startY = y;
+      }
+    };
+
+    const up = (e) => {
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", up);
+      if (!this.isDragging) {
+        this.setSelected(e); // 沒拖曳，就當作點擊
+      }
+    };
+
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", up);
   };
 
-  onMouseDown = (e: React.MouseEvent<HTMLUListElement, MouseEvent>) => {
+  // 伸縮放大組件用
+  onMouseDownForStretch = (
+    e: React.MouseEvent<HTMLUListElement, MouseEvent>
+  ) => {
     const dir = e.target instanceof HTMLElement && e.target?.dataset.direction;
     if (!dir) return;
     e.stopPropagation();
@@ -148,9 +191,9 @@ export default class Cmp extends Component<{
     const { style, value, type } = cmp;
     const { width, height } = style;
     const transform = `rotate(${style.transform}deg)`;
-    console.log("????", style);
+
     return (
-      <div onDragStart={this.onDragStart} draggable onClick={this.setSelected}>
+      <div onMouseDown={this.onMouseDownForMove} onClick={this.setSelected}>
         {/* 組件本身 */}
         <div style={{ ...style, transform }}>{getCmp(cmp)}</div>
         {/* 組件功能和選中的樣式 */}
@@ -166,7 +209,7 @@ export default class Cmp extends Component<{
             height: style.height,
             transform,
           }}
-          onMouseDown={this.onMouseDown}
+          onMouseDown={this.onMouseDownForStretch}
         >
           <li
             className={stretchDotStyle}
@@ -224,9 +267,9 @@ export default class Cmp extends Component<{
 function getCmp(cmp: CmpType) {
   switch (cmp.type) {
     case "Img":
-      return <Img {...cmp} />;
+      return <Img {...cmp} key={cmp.key} />;
     case "Text":
-      return <Text {...cmp} />;
+      return <Text {...cmp} key={cmp.key} />;
     default:
       break;
   }

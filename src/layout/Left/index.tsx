@@ -33,11 +33,12 @@ export default function Left(props) {
   useClickOutside(ref, close);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="fixed bg-white h-full  top-16">
       <ul className="w-20">
         {Object.entries(CmpEnum).map(([key, { text }]) => {
           return (
             <li
+              key={key}
               className={classNames(liStyle, {
                 [liSelectedStyle]: showSide === key,
               })}

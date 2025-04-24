@@ -16,10 +16,10 @@ function App() {
   }, []);
 
   return (
-    <div className="h-[calc(100vh-var(--spacing)*16)]">
+    <div className="min-h-screen w-full">
       <CanvasContext.Provider value={canvas}>
         <Header />
-        <div className="flex h-full justify-between">
+        <div className="pt-16 min-h-screen h-full relative">
           <Left />
           <Center />
           <Right />

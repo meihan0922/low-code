@@ -6,10 +6,10 @@ export default function Header(props) {
   const canvas = useCanvasByContext();
   const save = () => {
     const data = canvas.getCanvas();
-    console.log("data", data, JSON.stringify(data));
+    // console.log("data", data, JSON.stringify(data));
   };
   return (
-    <div className="z-20 h-16 flex justify-between px-8 leading-16 text-center text-white bg-black">
+    <div className="fixed w-full z-20 h-16 flex justify-between px-8 leading-16 text-center text-white bg-black">
       <div className="flex gap-1.5 cursor-pointer" onClick={save}>
         <span>
           <FontAwesomeIcon icon={faFloppyDisk} />
