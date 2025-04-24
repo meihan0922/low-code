@@ -34,6 +34,9 @@ export default class Cmp extends Component<{
   onMouseDownForMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.preventDefault();
     this.isDragging = false;
+    if (this.context.getSelectedCmpIndex() !== this.props.index) {
+      this.context.setSelectedCmpIndex(this.props.index);
+    }
 
     // 拖動前位置
     let startX = e.pageX;
