@@ -1,39 +1,42 @@
-import { useRef } from "react";
+import { StyleHTMLAttributes, useRef } from "react";
 import { getOnlyKey } from "../utils";
 
-const defaultCanvas: CmpsType = {
-  // 畫布樣式
-  style: {
-    width: 320,
-    height: 568,
-    backgroundColor: "#ffffff",
-    backgroundImage: "",
-    backgroundPosition: "center",
-    backgroundSize: "contain",
-    backgroundRepeat: "no-repeat",
-    boxSizing: "content-box",
-    transition: "transform 0.3s ease",
-  },
-  // 组件
-  cmps: [],
+function getDefaultCanvas() {
+  const defaultCanvas: CmpsType = {
+    // 畫布樣式
+    style: {
+      width: 320,
+      height: 568,
+      backgroundColor: "#ffffff",
+      backgroundImage: "",
+      backgroundPosition: "center",
+      backgroundSize: "contain",
+      backgroundRepeat: "no-repeat",
+      boxSizing: "content-box",
+      transition: "transform 0.3s ease",
+    },
+    // 组件
+    cmps: [],
 
-  // cmps: [
-  //   {
-  //     key: getOnlyKey(),
-  //     desc: "文本",
-  //     value: "文本",
-  //     style: {
-  //       position: "absolute",
-  //       top: 0,
-  //       left: 0,
-  //       width: 100,
-  //       height: 30,
-  //       fontSize: 12,
-  //       color: "red",
-  //     },
-  //   },
-  // ],
-};
+    // cmps: [
+    //   {
+    //     key: getOnlyKey(),
+    //     desc: "文本",
+    //     value: "文本",
+    //     style: {
+    //       position: "absolute",
+    //       top: 0,
+    //       left: 0,
+    //       width: 100,
+    //       height: 30,
+    //       fontSize: 12,
+    //       color: "red",
+    //     },
+    //   },
+    // ],
+  };
+  return defaultCanvas;
+}
 
 type BaseCmpType = {
   key?: number;
@@ -59,7 +62,7 @@ export class Canvas {
   listeners: (() => void)[];
   selectedCmpIndex: number;
 
-  constructor(_canvas = defaultCanvas) {
+  constructor(_canvas = getDefaultCanvas()) {
     this.canvas = _canvas; // 畫布數據
     this.selectedCmpIndex = null;
     this.listeners = [];
@@ -77,18 +80,22 @@ export class Canvas {
     return this.getCanvasCmps()[this.selectedCmpIndex];
   };
 
-  setSelectedCmpIndex = (index) => {
+  setSelectedCmpIndex = (index: number) => {
     if (this.selectedCmpIndex === index) return;
     this.selectedCmpIndex = index;
     this.updateApp();
   };
 
-  setCanvas = (_canvas) => {
-    Object.assign(this.canvas, _canvas);
+  setCanvas = (_canvas?: ICanvasDataType) => {
+    if (!_canvas) {
+      this.canvas = getDefaultCanvas();
+    } else {
+      Object.assign(this.canvas, _canvas);
+    }
     this.updateApp();
   };
 
-  updateCanvasStyle = (newStyle) => {
+  updateCanvasStyle = (newStyle: Record<string, any>) => {
     this.canvas.style = {
       ...this.canvas.style,
       ...newStyle,
