@@ -16,6 +16,8 @@ export default function Header(props) {
   };
 
   const emptyCanvas = () => canvas.setCanvas();
+  const goPrevCanvasHistory = () => canvas.goPrevCanvasHistory();
+  const goNextCanvasHistory = () => canvas.goNextCanvasHistory();
 
   return (
     <div className="fixed w-full z-20 h-16 flex justify-between px-8 leading-16 text-center text-white bg-black">
@@ -25,13 +27,13 @@ export default function Header(props) {
         <FontAwesomeIcon
           icon={faRotateLeft}
           className="text-2xl cursor-pointer"
-          onClick={emptyCanvas}
+          onClick={goPrevCanvasHistory}
         />
         {/* 下一步 */}
         <FontAwesomeIcon
           icon={faRotateRight}
           className="text-2xl cursor-pointer"
-          onClick={emptyCanvas}
+          onClick={goNextCanvasHistory}
         />
         {/* 清空 */}
         <FontAwesomeIcon

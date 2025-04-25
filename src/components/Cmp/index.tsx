@@ -79,6 +79,7 @@ export default class Cmp extends Component<{
       if (!this.isDragging) {
         this.setSelected(e); // 沒拖曳，就當作點擊
       }
+      this.context.recordCanvasChangeHistory();
     };
 
     document.addEventListener("mousemove", move);
@@ -145,6 +146,7 @@ export default class Cmp extends Component<{
     const up = () => {
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
+      this.context.recordCanvasChangeHistory();
     };
 
     document.addEventListener("mousemove", move);
@@ -183,6 +185,7 @@ export default class Cmp extends Component<{
     const up = () => {
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
+      this.context.recordCanvasChangeHistory();
     };
 
     document.addEventListener("mousemove", move);

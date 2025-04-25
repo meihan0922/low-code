@@ -96,6 +96,7 @@ export default function Center(props) {
       e.preventDefault();
       e.stopPropagation();
       canvas.updateSelectedCmp(newStyle);
+      canvas.recordCanvasChangeHistory();
     },
     [canvas]
   );

@@ -12,9 +12,11 @@ export default function EditCmp(props) {
   const handleStyleChange = (e, { name, value }) => {
     const newStyle = { [name]: value };
     canvas.updateSelectedCmp(newStyle);
+    canvas.recordCanvasChangeHistory();
   };
   const handleValueChange = ({ target: { value } }) => {
     canvas.updateSelectedCmp(null, value);
+    canvas.recordCanvasChangeHistory();
   };
 
   return (
